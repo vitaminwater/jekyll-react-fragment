@@ -7,6 +7,7 @@
 import path from 'path';
 import webpack from 'webpack';
 import merge from 'lodash.merge';
+import siteConfig from '../config';
 
 const DEBUG = !process.argv.includes('release');
 const VERBOSE = process.argv.includes('verbose');
@@ -64,9 +65,6 @@ const config = {
   module: {
     loaders: [
       {
-        test: /[\\\/]app\.js$/,
-        loader: path.join(__dirname, './lib/routes-loader.js'),
-      }, {
         test: /\.json$/,
         loader: 'json-loader',
       }, {
@@ -99,7 +97,7 @@ const appConfig = merge({}, config, {
     './app.js',
   ],
   output: {
-    filename: 'app.js',
+    filename: siteConfig.name + '.js',
   },
   // http://webpack.github.io/docs/configuration.html#devtool
   devtool: DEBUG ? 'cheap-module-eval-source-map' : false,
@@ -155,7 +153,7 @@ const appConfig = merge({}, config, {
 const pagesConfig = merge({}, config, {
   entry: './app.js',
   output: {
-    filename: 'app.node.js',
+    filename: siteConfig.name + '.node.js',
     libraryTarget: 'commonjs2',
   },
   target: 'node',

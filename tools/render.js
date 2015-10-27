@@ -4,51 +4,26 @@
  * Copyright (c) Konstantin Tarkus (@koistya) | MIT license
  */
 
-import glob from 'glob';
 import { join, dirname } from 'path';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import Html from '../components/Html';
+import Index from '../components/Index';
 import task from './lib/task';
 import fs from './lib/fs';
+import config from '../config';
 
-const DEBUG = !process.argv.includes('release');
+let writeFile = async (templateFile, outputFile, content) => {
+  const template = await fs.readFile(templateFile);
 
-function getPages() {
-  return new Promise((resolve, reject) => {
-    glob('**/*.js', { cwd: join(__dirname, '../pages') }, (err, files) => {
-      if (err) {
-        reject(err);
-      } else {
-        const result = files.map(file => {
-          let path = '/' + file.substr(0, file.lastIndexOf('.'));
-          if (path === '/index') {
-            path = '/';
-          } else if (path.endsWith('/index')) {
-            path = path.substr(0, path.lastIndexOf('/index'));
-          }
-          return { path, file };
-        });
-        resolve(result);
-      }
-    });
-  });
-}
-
-async function renderPage(page, component) {
-  const data = {
-    body: ReactDOM.renderToString(component),
-  };
-  const file = join(__dirname, '../build', page.file.substr(0, page.file.lastIndexOf('.')) + '.html');
-  const html = '<!doctype html>\n' + ReactDOM.renderToStaticMarkup(<Html debug={DEBUG} {...data} />);
-  await fs.mkdir(dirname(file));
-  await fs.writeFile(file, html);
-}
+  const html = template.replace('[[content]]', content)
+                       .replace('[[time]]', new Date().getTime())
+                       .replace(/\[\[name\]\]/g, config.name, 'g');
+  await fs.mkdir(dirname(outputFile));
+  await fs.writeFile(outputFile, html);
+};
 
 export default task(async function render() {
-  const pages = await getPages();
-  const { route } = require('../build/app.node');
-  for (const page of pages) {
-    await route(page.path, renderPage.bind(undefined, page));
-  }
+  const content = ReactDOM.renderToString(<Index />);
+  await writeFile('./index.template.html', join(__dirname, '../build', 'index.html'), content);
+  await writeFile('./include.template.html', join(__dirname, '../build', 'include.html'), content);
 });
