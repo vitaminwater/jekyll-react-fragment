@@ -5,14 +5,21 @@
  */
 
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 
-function Index({ debug }) {
+import { incAction } from '../../actions';
+
+import selectors from '../../selectors/foo';
+
+function Index({ debug, dispatch, n }) {
   return (
-    <div>hello world 15</div>
+    <div>hello world pouet {n}<a onClick={() => dispatch(incAction())}>inc</a></div>
   );
 }
 
 Index.propTypes = {
+  dispatch: PropTypes.func.isRequired,
+  n: PropTypes.number.isRequired,
 };
 
-export default Index;
+export default connect(selectors)(Index);

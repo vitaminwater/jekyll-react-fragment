@@ -7,10 +7,14 @@
 import { join, dirname } from 'path';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import Index from '../components/Index';
 import task from './lib/task';
 import fs from './lib/fs';
+
+import { Provider } from 'react-redux';
+
 import config from '../config';
+import Index from '../components/Index';
+import store from '../store';
 
 let writeFile = async (templateFile, outputFile, content) => {
   const template = await fs.readFile(templateFile);
@@ -23,7 +27,9 @@ let writeFile = async (templateFile, outputFile, content) => {
 };
 
 export default task(async function render() {
-  const content = ReactDOM.renderToString(<Index />);
+  const content = ReactDOM.renderToString(<Provider store={store}>
+                                            <Index />
+                                          </Provider>);
   await writeFile('./index.template.html', join(__dirname, '../build', 'index.html'), content);
   await writeFile('./include.template.html', join(__dirname, '../build', config.name + '.html'), content);
 });

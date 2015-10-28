@@ -11,9 +11,14 @@ import { canUseDOM } from 'fbjs/lib/ExecutionEnvironment';
 import Index from './components/Index';
 import config from './config';
 
+import { Provider } from 'react-redux';
+import store from './store';
+
 let run = () => {
   const container = document.getElementById(config.name);
-  ReactDOM.render(<Index />, container);
+  ReactDOM.render(<Provider store={store}>
+                    <Index />
+                  </Provider>, container);
 };
 
 if (canUseDOM) {
