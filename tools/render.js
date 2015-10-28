@@ -25,5 +25,5 @@ let writeFile = async (templateFile, outputFile, content) => {
 export default task(async function render() {
   const content = ReactDOM.renderToString(<Index />);
   await writeFile('./index.template.html', join(__dirname, '../build', 'index.html'), content);
-  await writeFile('./include.template.html', join(__dirname, '../build', 'include.html'), content);
+  await writeFile('./include.template.html', join(__dirname, '../build', config.name + '.html'), content);
 });
